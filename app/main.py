@@ -1,5 +1,7 @@
+from typing import Dict
 from fastapi import FastAPI, HTTPException
-
+from app.embedding import embedding_model
+from app.models.search_model import SearchRequest
 from app.repositories.user_repository import get_all_users
 from app.repositories.message_repository import insert_message
 from app.models.message_model import MessageCreate, MessageInDB
@@ -29,10 +31,23 @@ def list_users():
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.post("/messages", response_model=MessageInDB)
+@app.post("/messages", response_model=Dict)
 def create_message(message: MessageCreate):
     try:
         inserted_message = insert_message(message)
         return inserted_message
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
+
+
+@app.post("/messages/search", response_model=Dict)
+def search_messages(payload: SearchRequest):
+    try:
+        results = embedding_model.search_similar_messages(
+            payload.query,
+            payload.limit
+        )
+        return {"query": payload.query, "results": results}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
