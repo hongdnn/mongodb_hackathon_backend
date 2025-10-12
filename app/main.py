@@ -5,9 +5,18 @@ from app.models.search_model import SearchRequest
 from app.repositories.user_repository import get_all_users
 from app.repositories.message_repository import insert_message
 from app.models.message_model import MessageCreate, MessageInDB
+from fastapi.middleware.cors import CORSMiddleware
 from app.db import mongo
 
 app = FastAPI(title="MongoDB FastAPI Test")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],        # allow requests from any domain
+    allow_credentials=True,
+    allow_methods=["*"],        # allow all HTTP methods (GET, POST, etc.)
+    allow_headers=["*"],        # allow all headers
+)
 
 @app.get("/check")
 def health():
